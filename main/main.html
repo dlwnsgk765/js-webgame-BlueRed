@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>webgame</title>
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.js"
+      integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      #stage {
+        position: absolute;
+        border: 1px solid;
+        width: 1600px;
+        height: 800px;
+        background-image: url(image/BackGround.png);
+        background-size: cover;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+      #explain {
+        border: 1px solid;
+        text-align: center;
+      }
+      #player {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <img src="image/player-blue.gif" alt="" id="player" />
+      <img src="" alt="" />
+    </div>
+    <audio src="sounds/changeSound.wav"></audio>
+    <div id="explain">
+      설명<br />
+      1. 상, 하, 좌, 우키로 움직이세요<br />
+      2. 스페이스바로 캐릭터를 빨강, 파랑색으로 변경하세요<br />
+      3. 떨어지는 공을 색깔에 맞게 변경해서 맞닿으세요<br />
+      4. 검정 공을 피하세요<br />
+    </div>
+    <script>
+      const player = $("#player");
+
+      const states = {
+        BLUE: "BLUE",
+        RED: "RED",
+      };
+
+      let currentState = states.BLUE;
+
+      function update() {
+        
+      }
+      //업데이트 되게하는 함수
+      setInterval(update, 1000 / 144);
+
+      function moveRight() {
+        const playerRight = parseInt(player.css("right"), 10);
+        if (playerRight <= 0) {
+          return;
+        }
+        player.css({ left: "+=100px" });
+        player.css({ transform: "scaleX(-1)" }); // 이미지를 좌우로 반전
+      }   
+      function moveLeft() {
+        const playerLeft = parseInt(player.css("left"), 10);
+        if (playerLeft <= 0) {
+          return;
+        }
+        player.css({ left: "-=100px" });
+        player.css({ transform: "scaleX(1)" }); // 이미지를 좌우로 반전
+      }
+      function moveUp() {
+        const playerTop = parseInt(player.css("top"), 10);
+        if (playerTop <= 0) {
+          return;
+        }
+        player.css({ top: "-=100px" });
+      }
+      function moveDown() {
+        const playerBottom = parseInt(player.css("bottom"), 10);
+        if (playerBottom <= 0) {
+          return;
+        }
+        player.css({ top: "+=100px" });
+      }
+
+      function changeColor() {
+        if (currentState === states.BLUE) {
+          currentState = states.RED;
+          player.attr("src", "image/player-red.gif");
+        } else if (currentState === states.RED) {
+          currentState = states.BLUE;
+          player.attr("src", "image/player-blue.gif");
+        }
+      }
+
+      
+
+      $(document).keydown(function (event) {
+        //console.log(event.key);
+
+        switch (event.key) {
+          case "d":
+          case "ArrowRight":
+            moveRight();
+            break;
+          case "a":
+          case "ArrowLeft":
+            moveLeft();
+            break;
+          case "w":
+          case "ArrowUp":
+            moveUp();
+            break;
+          case "s":
+          case "ArrowDown":
+            moveDown();
+            break;
+          case " ":
+            changeColor();
+            break;
+        }
+      });
+    </script>
+  </body>
+</html>
