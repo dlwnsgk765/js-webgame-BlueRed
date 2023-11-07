@@ -15,7 +15,7 @@
         border: 1px solid;
         width: 1600px;
         height: 800px;
-        background-image: url(image/BackGround.png);
+        background-image: url(images/BackGround.png);
         background-size: cover;
         left: 50%;
         top: 50%;
@@ -34,10 +34,9 @@
   </head>
   <body>
     <div id="stage">
-      <img src="image/player-blue.gif" alt="" id="player" />
-      <img src="" alt="" />
+      <img src="images/player-blue.gif" alt="" id="player" />
     </div>
-    <audio src="sounds/changeSound.wav"></audio>
+    <audio src="sounds/changeSound.wav" id="audio"></audio>
     <div id="explain">
       설명<br />
       1. 상, 하, 좌, 우키로 움직이세요<br />
@@ -47,6 +46,7 @@
     </div>
     <script>
       const player = $("#player");
+      const audio = document.getElementById("audio");
 
       const states = {
         BLUE: "BLUE",
@@ -57,8 +57,10 @@
 
       function update() {
         
+        // 게임 업데이트 루프
       }
-      //업데이트 되게하는 함수
+
+      // 업데이트 함수를 일정 주기로 호출
       setInterval(update, 1000 / 144);
 
       function moveRight() {
@@ -68,7 +70,8 @@
         }
         player.css({ left: "+=100px" });
         player.css({ transform: "scaleX(-1)" }); // 이미지를 좌우로 반전
-      }   
+      }
+
       function moveLeft() {
         const playerLeft = parseInt(player.css("left"), 10);
         if (playerLeft <= 0) {
@@ -77,6 +80,7 @@
         player.css({ left: "-=100px" });
         player.css({ transform: "scaleX(1)" }); // 이미지를 좌우로 반전
       }
+
       function moveUp() {
         const playerTop = parseInt(player.css("top"), 10);
         if (playerTop <= 0) {
@@ -84,6 +88,7 @@
         }
         player.css({ top: "-=100px" });
       }
+
       function moveDown() {
         const playerBottom = parseInt(player.css("bottom"), 10);
         if (playerBottom <= 0) {
@@ -95,18 +100,18 @@
       function changeColor() {
         if (currentState === states.BLUE) {
           currentState = states.RED;
-          player.attr("src", "image/player-red.gif");
+          player.attr("src", "images/player-red.gif");
         } else if (currentState === states.RED) {
           currentState = states.BLUE;
-          player.attr("src", "image/player-blue.gif");
+          player.attr("src", "images/player-blue.gif");
         }
+
+        // 오디오 재생
+        audio.play();
       }
 
       
-
       $(document).keydown(function (event) {
-        //console.log(event.key);
-
         switch (event.key) {
           case "d":
           case "ArrowRight":
@@ -126,9 +131,40 @@
             break;
           case " ":
             changeColor();
+            
             break;
         }
       });
+      function createRandomImage() {
+        let randomImageSrc;
+        const randomNumber = Math.random();
+        if (randomNumber < 0.33) {
+          randomImageSrc = "images/red.png";
+        } else if (randomNumber < 0.67) {
+          randomImageSrc = "images/blue.png";
+        } else {
+          randomImageSrc = "images/black.png";
+        }
+
+        // 새 이미지 엘리먼트를 생성하고 추가
+        const newImage = document.createElement("img");
+        newImage.src = randomImageSrc;
+        newImage.classList.add("randomImage");
+        newImage.style.width = "100px"; // 이미지의 너비 설정
+        newImage.style.height = "100px"; // 이미지의 높이 설정
+
+        // 스테이지 너비와 높이를 고려하여 랜덤 위치 설정
+        const stage = document.getElementById("stage");
+        let stageWidth = stage.clientWidth;
+        let stageHeight = stage.clientHeight;
+        let randomLeft = Math.random() * (stageWidth - 100);
+        let randomTop = Math.random() * (stageHeight - 100);
+        newImage.style.left = `${randomLeft}px`;
+        newImage.style.top = `${randomTop}px`;
+
+        stage.appendChild(newImage);
+      }
+
     </script>
   </body>
 </html>
