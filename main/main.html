@@ -40,7 +40,7 @@
         text-align: center;
         font-size: 30px;
       }
-      #volumeControl{
+      #volumeControl {
         position: relative;
       }
     </style>
@@ -65,14 +65,22 @@
     <span id="scoreText"></span>
     <button onclick="playBackgroundMusic()">Music</button>
     <button onclick="pauseBackgroundMusic()">Pause</button>
-    <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1" oninput="adjustVolume()">
+    <input
+      type="range"
+      id="volumeControl"
+      min="0"
+      max="1"
+      step="0.01"
+      value="1"
+      oninput="adjustVolume()"
+    />
     <script>
       const player = $("#player");
       const changeSound = document.getElementById("changeSound");
       const getScoreSound = document.getElementById("getScoreSound");
       const backgroundMusic = document.getElementById("backgroundSound");
       const failSound = document.getElementById("failSound");
-      const volumeControl = document.getElementById('volumeControl');
+      const volumeControl = document.getElementById("volumeControl");
       const scoreText = $("#scoreText");
       const highScoreText = $("#highScoreText");
       let highScore = 0;
@@ -92,7 +100,7 @@
       }
       function adjustVolume() {
         backgroundMusic.volume = volumeControl.value;
-    }
+      }
 
       function update() {
         const playerElement = player.get(0); // 플레이어 엘리먼트
@@ -111,7 +119,6 @@
                 //alert(`${score}`);
               } else if (dataIndex === "blue" || dataIndex === "black") {
                 failSound.play();
-                alert("게임 종료");
                 $(randomImage).remove();
                 gameIsOver = true;
               }
@@ -124,17 +131,14 @@
                 //alert(`${score}`);
               } else if (dataIndex === "red" || dataIndex === "black") {
                 failSound.play();
-                alert("게임 종료");
                 $(randomImage).remove();
                 gameIsOver = true;
               }
             }
-            // 충돌 시 게임 종료 처리 (예: 게임 오버 화면 표시)
-            //gameIsOver = true;
           }
         });
-
         if (gameIsOver) {
+          alert("게임 종료");
           if (highScore < score) {
             highScore = score;
           }
