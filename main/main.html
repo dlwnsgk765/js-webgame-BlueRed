@@ -51,9 +51,8 @@
     </div>
     <audio src="sounds/changeSound.wav" id="changeSound"></audio>
     <audio src="sounds/coinSound.wav" id="getScoreSound"></audio>
-    <div>
-    <audio src="sounds/backgroundsound.wav" loop id="backgroundsound"></audio>
-  </div>
+    <audio src="sounds/backgroundsound.wav" loop id="backgroundSound"></audio>
+    <audio src="sounds/failsound.wav" id="failSound"></audio>
     <div id="explain">
       설명<br />
       1. 상, 하, 좌, 우 키로 움직이세요<br />
@@ -71,6 +70,8 @@
       const player = $("#player");
       const changeSound = document.getElementById("changeSound");
       const getScoreSound = document.getElementById("getScoreSound");
+      const backgroundMusic = document.getElementById("backgroundSound");
+      const failSound = document.getElementById("failSound");
       const volumeControl = document.getElementById('volumeControl');
       const scoreText = $("#scoreText");
       const highScoreText = $("#highScoreText");
@@ -82,7 +83,6 @@
       };
 
       let currentState = states.BLUE;
-      const backgroundMusic = document.getElementById("backgroundsound");
 
       function playBackgroundMusic() {
         backgroundMusic.play();
@@ -110,6 +110,7 @@
                 getScoreSound.play();
                 //alert(`${score}`);
               } else if (dataIndex === "blue" || dataIndex === "black") {
+                failSound.play();
                 alert("게임 종료");
                 $(randomImage).remove();
                 gameIsOver = true;
@@ -122,6 +123,7 @@
                 getScoreSound.play();
                 //alert(`${score}`);
               } else if (dataIndex === "red" || dataIndex === "black") {
+                failSound.play();
                 alert("게임 종료");
                 $(randomImage).remove();
                 gameIsOver = true;
