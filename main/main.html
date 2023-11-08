@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>webgame</title>
+    <title>Web Game</title>
     <script
       src="https://code.jquery.com/jquery-3.7.1.js"
       integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
@@ -30,34 +30,116 @@
         width: 200px;
         height: 200px;
       }
+      #scoreText {
+        display: block; /* 블록 레벨 요소로 표시 */
+        text-align: center;
+        font-size: 30px;
+      }
+      #highScoreText {
+        display: block; /* 블록 레벨 요소로 표시 */
+        text-align: center;
+        font-size: 30px;
+      }
+      #volumeControl{
+        position: relative;
+      }
     </style>
   </head>
   <body>
     <div id="stage">
       <img src="images/player-blue.gif" alt="" id="player" />
     </div>
-    <audio src="sounds/changeSound.wav" id="audio"></audio>
+    <audio src="sounds/changeSound.wav" id="changeSound"></audio>
+    <audio src="sounds/coinSound.wav" id="getScoreSound"></audio>
+    <div>
+    <audio src="sounds/backgroundsound.wav" loop id="backgroundsound"></audio>
+  </div>
     <div id="explain">
       설명<br />
-      1. 상, 하, 좌, 우키로 움직이세요<br />
-      2. 스페이스바로 캐릭터를 빨강, 파랑색으로 변경하세요<br />
-      3. 떨어지는 공을 색깔에 맞게 변경해서 맞닿으세요<br />
-      4. 검정 공을 피하세요<br />
+      1. 상, 하, 좌, 우 키로 움직이세요<br />
+      2. z 키를 눌러 랜덤 공을 생성하세요 <br />
+      3. 스페이스바로 캐릭터를 빨강, 파랑색으로 변경하세요<br />
+      4. 화면에 나오는 공을 색깔에 맞게 변경해서 맞닿으세요<br />
+      5. 검정 공을 피하세요<br />
     </div>
+    <div id="highScoreText"></div>
+    <span id="scoreText"></span>
+    <button onclick="playBackgroundMusic()">Music</button>
+    <button onclick="pauseBackgroundMusic()">Pause</button>
+    <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1" oninput="adjustVolume()">
     <script>
       const player = $("#player");
-      const audio = document.getElementById("audio");
-
+      const changeSound = document.getElementById("changeSound");
+      const getScoreSound = document.getElementById("getScoreSound");
+      const volumeControl = document.getElementById('volumeControl');
+      const scoreText = $("#scoreText");
+      const highScoreText = $("#highScoreText");
+      let highScore = 0;
+      let score = 0;
       const states = {
         BLUE: "BLUE",
         RED: "RED",
       };
 
       let currentState = states.BLUE;
+      const backgroundMusic = document.getElementById("backgroundsound");
+
+      function playBackgroundMusic() {
+        backgroundMusic.play();
+      }
+      function pauseBackgroundMusic() {
+        backgroundMusic.pause();
+      }
+      function adjustVolume() {
+        backgroundMusic.volume = volumeControl.value;
+    }
 
       function update() {
-        
-        // 게임 업데이트 루프
+        const playerElement = player.get(0); // 플레이어 엘리먼트
+        const randomImages = document.querySelectorAll(".randomImage"); // 모든 랜덤 이미지 엘리먼트
+        let gameIsOver = false;
+        highScoreText.text("HighScore: " + highScore);
+        scoreText.text("score: " + score);
+        randomImages.forEach((randomImage) => {
+          if (onCollisionEnter(playerElement, randomImage)) {
+            const dataIndex = $(randomImage).data("index");
+            if (currentState === states.RED) {
+              if (dataIndex === "red") {
+                score += 10;
+                $(randomImage).remove();
+                getScoreSound.play();
+                //alert(`${score}`);
+              } else if (dataIndex === "blue" || dataIndex === "black") {
+                alert("게임 종료");
+                $(randomImage).remove();
+                gameIsOver = true;
+              }
+            }
+            if (currentState === states.BLUE) {
+              if (dataIndex === "blue") {
+                score += 10;
+                $(randomImage).remove();
+                getScoreSound.play();
+                //alert(`${score}`);
+              } else if (dataIndex === "red" || dataIndex === "black") {
+                alert("게임 종료");
+                $(randomImage).remove();
+                gameIsOver = true;
+              }
+            }
+            // 충돌 시 게임 종료 처리 (예: 게임 오버 화면 표시)
+            //gameIsOver = true;
+          }
+        });
+
+        if (gameIsOver) {
+          if (highScore < score) {
+            highScore = score;
+          }
+          gameIsOver = false;
+          score = 0;
+          // 게임 종료에 따른 추가 처리
+        }
       }
 
       // 업데이트 함수를 일정 주기로 호출
@@ -105,12 +187,10 @@
           currentState = states.BLUE;
           player.attr("src", "images/player-blue.gif");
         }
-
         // 오디오 재생
-        audio.play();
+        changeSound.play();
       }
 
-      
       $(document).keydown(function (event) {
         switch (event.key) {
           case "d":
@@ -131,40 +211,88 @@
             break;
           case " ":
             changeColor();
-            
+            break;
+          case "z":
+            createRandomImage();
             break;
         }
       });
+
       function createRandomImage() {
-        let randomImageSrc;
         const randomNumber = Math.random();
+        let randomImageSrc;
+        let dataIndex; // 랜덤 이미지의 data-index 속성 값
+
         if (randomNumber < 0.33) {
           randomImageSrc = "images/red.png";
+          dataIndex = "red";
         } else if (randomNumber < 0.67) {
           randomImageSrc = "images/blue.png";
+          dataIndex = "blue";
         } else {
           randomImageSrc = "images/black.png";
+          dataIndex = "black";
         }
 
-        // 새 이미지 엘리먼트를 생성하고 추가
-        const newImage = document.createElement("img");
-        newImage.src = randomImageSrc;
-        newImage.classList.add("randomImage");
-        newImage.style.width = "100px"; // 이미지의 너비 설정
-        newImage.style.height = "100px"; // 이미지의 높이 설정
+        // 이미지를 생성하고 속성을 설정
+        const newImage = $("<img>");
+        newImage.attr("src", randomImageSrc);
+        newImage.addClass("randomImage");
+        newImage.attr("data-index", dataIndex); // data-index 속성 설정
+        newImage.css({
+          position: "absolute",
+          width: "100px",
+          height: "100px",
+        });
 
-        // 스테이지 너비와 높이를 고려하여 랜덤 위치 설정
-        const stage = document.getElementById("stage");
-        let stageWidth = stage.clientWidth;
-        let stageHeight = stage.clientHeight;
-        let randomLeft = Math.random() * (stageWidth - 100);
-        let randomTop = Math.random() * (stageHeight - 100);
-        newImage.style.left = `${randomLeft}px`;
-        newImage.style.top = `${randomTop}px`;
+        // 랜덤 위치 설정
+        const stage = $("#stage");
+        const stageWidth = stage.width();
+        const stageHeight = stage.height();
+        let randomLeft, randomTop;
 
-        stage.appendChild(newImage);
+        // 이미지가 다른 이미지와 겹치지 않도록 확인
+        let isOverlap;
+        do {
+          randomLeft = Math.random() * (stageWidth - 100);
+          randomTop = Math.random() * (stageHeight - 100);
+          isOverlap = false;
+
+          // 모든 이미지와의 충돌 확인
+          $(".randomImage").each(function () {
+            const imageLeft = parseFloat($(this).css("left"));
+            const imageTop = parseFloat($(this).css("top"));
+            if (
+              randomLeft + 100 > imageLeft &&
+              randomLeft < imageLeft + 100 &&
+              randomTop + 100 > imageTop &&
+              randomTop < imageTop + 100
+            ) {
+              isOverlap = true;
+            }
+          });
+        } while (isOverlap);
+
+        newImage.css({ left: randomLeft + "px", top: randomTop + "px" });
+
+        stage.append(newImage);
+
+        setTimeout(() => {
+          newImage.remove();
+        }, 5000);
       }
 
+      function onCollisionEnter(element1, element2) {
+        const rect1 = element1.getBoundingClientRect();
+        const rect2 = element2.getBoundingClientRect();
+
+        return (
+          rect1.right > rect2.left &&
+          rect1.left < rect2.right &&
+          rect1.bottom > rect2.top &&
+          rect1.top < rect2.bottom
+        );
+      }
     </script>
   </body>
 </html>
